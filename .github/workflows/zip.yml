@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       file1:
-        description: 'URL del primo file'
+        description: 'URL diretto del primo file'
         required: true
       file2:
-        description: 'URL del secondo file'
+        description: 'URL diretto del secondo file'
         required: true
       file3:
-        description: 'URL del terzo file'
+        description: 'URL diretto del terzo file'
         required: true
       zipname:
         description: 'Nome file zip (senza estensione)'
@@ -21,16 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Scarica file1
-        run: curl -L "${{ github.event.inputs.file1 }}" -o file1.dat
+        run: curl -f -L "${{ github.event.inputs.file1 }}" -o file1.bin
 
       - name: Scarica file2
-        run: curl -L "${{ github.event.inputs.file2 }}" -o file2.dat
+        run: curl -f -L "${{ github.event.inputs.file2 }}" -o file2.bin
 
       - name: Scarica file3
-        run: curl -L "${{ github.event.inputs.file3 }}" -o file3.dat
+        run: curl -f -L "${{ github.event.inputs.file3 }}" -o file3.bin
+
+      - name: Verifica contenuto
+        run: ls -lh && file file1.bin file2.bin file3.bin
 
       - name: Crea zip
-        run: zip -r ${{ github.event.inputs.zipname }}.zip file1.dat file2.dat file3.dat
+        run: zip -r ${{ github.event.inputs.zipname }}.zip file1.bin file2.bin file3.bin
 
       - name: Upload artifact (zip)
         uses: actions/upload-artifact@v4
