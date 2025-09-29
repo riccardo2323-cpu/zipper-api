@@ -33,7 +33,7 @@ jobs:
         run: zip -r ${{ github.event.inputs.zipname }}.zip file1.dat file2.dat file3.dat
 
       - name: Upload artifact (zip)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.zipname }}
           path: ${{ github.event.inputs.zipname }}.zip
