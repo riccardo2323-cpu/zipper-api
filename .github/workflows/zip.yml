@@ -7,22 +7,22 @@ on:
         description: 'Contenuto del file uno'
         required: true
       name1:
-        description: 'Nome del file uno con estensione (es: file1.txt)'
+        description: 'Nome del file uno con estensione (es: Manifest.xml)'
         required: true
       content2:
         description: 'Contenuto del file due'
         required: true
       name2:
-        description: 'Nome del file due'
+        description: 'Nome del file due con estensione (es: PackageHeader.xml)'
         required: true
       content3:
         description: 'Contenuto del file tre'
         required: true
       name3:
-        description: 'Nome del file tre'
+        description: 'Nome del file tre con estensione (es: Al1PackingPreparationEntity.xml)'
         required: true
       zipname:
-        description: 'Nome del file zip generato (senza .zip)'
+        description: 'Nome del file zip (senza estensione)'
         required: true
 
 jobs:
@@ -30,22 +30,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create file1
-        run: echo "${{ github.event.inputs.content1 }}" > "${{ github.event.inputs.name1 }}"
+        run: |
+          cat <<'EOF' > "${{ github.event.inputs.name1 }}"
+          ${{ github.event.inputs.content1 }}
+          EOF
 
       - name: Create file2
-        run: echo "${{ github.event.inputs.content2 }}" > "${{ github.event.inputs.name2 }}"
+        run: |
+          cat <<'EOF' > "${{ github.event.inputs.name2 }}"
+          ${{ github.event.inputs.content2 }}
+          EOF
 
       - name: Create file3
-        run: echo "${{ github.event.inputs.content3 }}" > "${{ github.event.inputs.name3 }}"
+        run: |
+          cat <<'EOF' > "${{ github.event.inputs.name3 }}"
+          ${{ github.event.inputs.content3 }}
+          EOF
 
       - name: Verifica contenuto
-        run: ls -lh && cat "${{ github.event.inputs.name1 }}" || true
+        run: ls -lh && head -n 20 "${{ github.event.inputs.name1 }}" || true
 
       - name: Crea zip piatto
         run: zip -j "${{ github.event.inputs.zipname }}.zip" \
-               "${{ github.event.inputs.name1 }}" \
-               "${{ github.event.inputs.name2 }}" \
-               "${{ github.event.inputs.name3 }}"
+                  "${{ github.event.inputs.name1 }}" \
+                  "${{ github.event.inputs.name2 }}" \
+                  "${{ github.event.inputs.name3 }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
