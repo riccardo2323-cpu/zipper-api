@@ -1,33 +1,53 @@
-name: Zip from content
+name: Cleanup + Zip from content
 
 on:
   workflow_dispatch:
     inputs:
       content1:
-        description: 'Contenuto del file uno'
+        description: 'Contenuto file uno'
         required: true
       name1:
-        description: 'Nome del file uno con estensione (es: Manifest.xml)'
+        description: 'Nome file uno (es: Manifest.xml)'
         required: true
       content2:
-        description: 'Contenuto del file due'
+        description: 'Contenuto file due'
         required: true
       name2:
-        description: 'Nome del file due con estensione (es: PackageHeader.xml)'
+        description: 'Nome file due (es: PackageHeader.xml)'
         required: true
       content3:
-        description: 'Contenuto del file tre'
+        description: 'Contenuto file tre'
         required: true
       name3:
-        description: 'Nome del file tre con estensione (es: Al1PackingPreparationEntity.xml)'
+        description: 'Nome file tre (es: Al1PackingPreparationEntity.xml)'
         required: true
       zipname:
-        description: 'Nome del file zip (senza estensione)'
+        description: 'Nome dello zip (senza estensione)'
         required: true
 
 jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all artifacts
+        run: |
+          echo "Fetching artifacts..."
+          artifacts=$(gh api repos/${GITHUB_REPOSITORY}/actions/artifacts --paginate -q '.artifacts[].id')
+          if [ -z "$artifacts" ]; then
+            echo "✅ Nessun artifact trovato"
+          else
+            for id in $artifacts; do
+              echo "Deleting artifact ID: $id"
+              gh api repos/${GITHUB_REPOSITORY}/actions/artifacts/$id -X DELETE
+            done
+            echo "✅ Tutti gli artifacts sono stati cancellati"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build:
     runs-on: ubuntu-latest
+    needs: cleanup
     steps:
       - name: Create file1
         run: |
