@@ -49,36 +49,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build:
+    build:
     runs-on: ubuntu-latest
     needs: cleanup
     steps:
-      - name: Create file1
-        run: |
-          cat <<'EOF' > "${{ github.event.inputs.name1 }}"
-          ${{ github.event.inputs.content1 }}
-          EOF
+      - name: Checkout (per avere una workspace pulita)
+        uses: actions/checkout@v4
 
-      - name: Create file2
+      - name: Create Manifest.xml
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name2 }}"
-          ${{ github.event.inputs.content2 }}
-          EOF
+          echo "${{ github.event.inputs.content1 }}" > Manifest.xml
 
-      - name: Create file3
+      - name: Create PackageHeader.xml
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name3 }}"
-          ${{ github.event.inputs.content3 }}
-          EOF
+          echo "${{ github.event.inputs.content2 }}" > PackageHeader.xml
+
+      - name: Create Al1PackingPreparationEntity.xml
+        run: |
+          echo "${{ github.event.inputs.content3 }}" > Al1PackingPreparationEntity.xml
 
       - name: Crea zip
-        run: zip -j "${{ github.event.inputs.zipname }}.zip" \
-                  "${{ github.event.inputs.name1 }}" \
-                  "${{ github.event.inputs.name2 }}" \
-                  "${{ github.event.inputs.name3 }}"
+        run: |
+          ls -lh   # 👈 debug: così vedi i file che ci sono davvero
+          zip -j "${{ github.event.inputs.zipname }}.zip" \
+                 Manifest.xml \
+                 PackageHeader.xml \
+                 Al1PackingPreparationEntity.xml
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.zipname }}
           path: ${{ github.event.inputs.zipname }}.zip
+
