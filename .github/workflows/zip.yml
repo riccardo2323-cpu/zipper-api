@@ -25,6 +25,10 @@ on:
         description: 'Nome dello zip (senza estensione)'
         required: true
 
+permissions:
+  actions: write
+  contents: write
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
