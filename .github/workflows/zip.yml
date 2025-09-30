@@ -21,28 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Scarica file1
-        run: |
-          wget --no-verbose --trust-server-names --content-disposition \
-               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
-               "${{ github.event.inputs.file1 }}" -O file1.bin
+        run: wget -q --content-disposition "${{ github.event.inputs.file1 }}" -O file1
 
       - name: Scarica file2
-        run: |
-          wget --no-verbose --trust-server-names --content-disposition \
-               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
-               "${{ github.event.inputs.file2 }}" -O file2.bin
+        run: wget -q --content-disposition "${{ github.event.inputs.file2 }}" -O file2
 
       - name: Scarica file3
-        run: |
-          wget --no-verbose --trust-server-names --content-disposition \
-               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
-               "${{ github.event.inputs.file3 }}" -O file3.bin
+        run: wget -q --content-disposition "${{ github.event.inputs.file3 }}" -O file3
 
       - name: Verifica contenuto
-        run: ls -lh && file file1.bin file2.bin file3.bin
+        run: ls -lh
 
       - name: Crea zip
-        run: zip -r ${{ github.event.inputs.zipname }}.zip file1.bin file2.bin file3.bin
+        run: zip -j ${{ github.event.inputs.zipname }}.zip file1 file2 file3
 
       - name: Upload artifact (zip)
         uses: actions/upload-artifact@v4
