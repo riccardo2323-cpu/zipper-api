@@ -1,4 +1,4 @@
-name: Zip from content
+name: Zip from content (debug)
 
 on:
   workflow_dispatch:
@@ -29,32 +29,86 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Create file1
+      - name: Print truncated inputs (for quick check)
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name1 }}"
-          ${{ github.event.inputs.content1 }}
-          EOF
+          echo "=== INPUT PREVIEWS (truncated) ==="
+          echo "--- name1 ---"
+          echo "${{ github.event.inputs.name1 }}"
+          echo "--- content1 length (bytes) ---"
+          echo -n "${{ github.event.inputs.content1 }}" | wc -c || true
+          echo "--- content1 preview (first 1000 bytes) ---"
+          echo "${{ github.event.inputs.content1 }}" | head -c 1000 || true
+          echo
+          echo "--- name2 ---"
+          echo "${{ github.event.inputs.name2 }}"
+          echo "--- content2 length (bytes) ---"
+          echo -n "${{ github.event.inputs.content2 }}" | wc -c || true
+          echo "--- content2 preview (first 1000 bytes) ---"
+          echo "${{ github.event.inputs.content2 }}" | head -c 1000 || true
+          echo
+          echo "--- name3 ---"
+          echo "${{ github.event.inputs.name3 }}"
+          echo "--- content3 length (bytes) ---"
+          echo -n "${{ github.event.inputs.content3 }}" | wc -c || true
+          echo "--- content3 preview (first 1000 bytes) ---"
+          echo "${{ github.event.inputs.content3 }}" | head -c 1000 || true
+          echo "=== END PREVIEWS ==="
 
-      - name: Create file2
+      - name: Create files safely (no heredoc pitfalls)
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name2 }}"
-          ${{ github.event.inputs.content2 }}
-          EOF
+          printf '%s' "${{ github.event.inputs.content1 }}" > "${{ github.event.inputs.name1 }}" || true
+          printf '%s' "${{ github.event.inputs.content2 }}" > "${{ github.event.inputs.name2 }}" || true
+          printf '%s' "${{ github.event.inputs.content3 }}" > "${{ github.event.inputs.name3 }}" || true
 
-      - name: Create file3
+      - name: Verify files (existence, size, type, quick head and checks)
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name3 }}"
-          ${{ github.event.inputs.content3 }}
-          EOF
+          set -o pipefail
+          echo "=== ls -lh ==="
+          ls -lh || true
+          echo
+          for f in "${{ github.event.inputs.name1 }}" "${{ github.event.inputs.name2 }}" "${{ github.event.inputs.name3 }}"; do
+            echo "---- CHECK: $f ----"
+            if [ -f "$f" ]; then
+              echo "EXISTS"
+              echo "size: $(stat -c%s "$f") bytes"
+              file "$f" || true
+              echo "HEAD (first 50 lines):"
+              head -n 50 "$f" || true
+              echo "HEX (first 256 bytes):"
+              xxd -l 256 "$f" || true
+              # look for unresolved Power Automate expressions literal
+              if grep -q "@{body(" "$f" 2>/dev/null || true; then
+                echo "!!! Found unresolved Power Automate expression pattern (@{body...) in $f"
+              fi
+              # look for HTML login page
+              if grep -qi "<!doctype\|<html\|Sign in to your account" "$f" 2>/dev/null || true; then
+                echo "!!! Looks like HTML/login page detected inside $f (likely authentication page)"
+              fi
+            else
+              echo "MISSING -> file not created"
+            fi
+            echo
+          done
 
-      - name: Verifica contenuto
-        run: ls -lh && head -n 20 "${{ github.event.inputs.name1 }}" || true
-
-      - name: Crea zip piatto
-        run: zip -j "${{ github.event.inputs.zipname }}.zip" \
-                  "${{ github.event.inputs.name1 }}" \
-                  "${{ github.event.inputs.name2 }}" \
-                  "${{ github.event.inputs.name3 }}"
+      - name: Create single-level zip (only if files exist)
+        run: |
+          set -e
+          files_present=true
+          for f in "${{ github.event.inputs.name1 }}" "${{ github.event.inputs.name2 }}" "${{ github.event.inputs.name3 }}"; do
+            if [ ! -f "$f" ]; then
+              echo "ERROR: $f missing, aborting zip"
+              files_present=false
+            fi
+          done
+          if [ "$files_present" != "true" ]; then
+            echo "One or more files missing. See previous step output."
+            exit 12
+          fi
+          zip -j "${{ github.event.inputs.zipname }}.zip" \
+              "${{ github.event.inputs.name1 }}" \
+              "${{ github.event.inputs.name2 }}" \
+              "${{ github.event.inputs.name3 }}"
+          echo "Created zip: $(ls -lh "${{ github.event.inputs.zipname }}.zip")"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
