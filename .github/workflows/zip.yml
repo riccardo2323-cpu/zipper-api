@@ -31,19 +31,19 @@ jobs:
     steps:
       - name: Create file1
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name1 }}"
+          cat <<EOF > "${{ github.event.inputs.name1 }}"
           ${{ github.event.inputs.content1 }}
           EOF
 
       - name: Create file2
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name2 }}"
+          cat <<EOF > "${{ github.event.inputs.name2 }}"
           ${{ github.event.inputs.content2 }}
           EOF
 
       - name: Create file3
         run: |
-          cat <<'EOF' > "${{ github.event.inputs.name3 }}"
+          cat <<EOF > "${{ github.event.inputs.name3 }}"
           ${{ github.event.inputs.content3 }}
           EOF
 
