@@ -21,13 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Scarica file1
-        run: curl -f -L "${{ github.event.inputs.file1 }}" -o file1.bin
+        run: |
+          wget --no-verbose --trust-server-names --content-disposition \
+               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+               "${{ github.event.inputs.file1 }}" -O file1.bin
 
       - name: Scarica file2
-        run: curl -f -L "${{ github.event.inputs.file2 }}" -o file2.bin
+        run: |
+          wget --no-verbose --trust-server-names --content-disposition \
+               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+               "${{ github.event.inputs.file2 }}" -O file2.bin
 
       - name: Scarica file3
-        run: curl -f -L "${{ github.event.inputs.file3 }}" -o file3.bin
+        run: |
+          wget --no-verbose --trust-server-names --content-disposition \
+               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+               "${{ github.event.inputs.file3 }}" -O file3.bin
 
       - name: Verifica contenuto
         run: ls -lh && file file1.bin file2.bin file3.bin
