@@ -17,6 +17,10 @@ on:
         required: true
         default: "miozip"
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
