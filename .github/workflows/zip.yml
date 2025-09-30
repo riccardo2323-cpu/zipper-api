@@ -42,32 +42,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare output folder
+        run: mkdir output
+
       - name: Create Manifest.xml
         run: |
-          echo "${{ github.event.inputs.content1 }}" > Manifest.xml
+          echo "${{ github.event.inputs.content1 }}" > output/Manifest.xml
 
       - name: Create PackageHeader.xml
         run: |
-          echo "${{ github.event.inputs.content2 }}" > PackageHeader.xml
+          echo "${{ github.event.inputs.content2 }}" > output/PackageHeader.xml
 
       - name: Create Al1PackingPreparationEntity.xml
         run: |
-          echo "${{ github.event.inputs.content3 }}" > Al1PackingPreparationEntity.xml
+          echo "${{ github.event.inputs.content3 }}" > output/Al1PackingPreparationEntity.xml
 
       - name: Debug files
         run: |
-          ls -lh
-          file Manifest.xml PackageHeader.xml Al1PackingPreparationEntity.xml || true
-
-      - name: Create zip
-        run: |
-          zip -j "${{ github.event.inputs.zipname }}.zip" \
-                 Manifest.xml \
-                 PackageHeader.xml \
-                 Al1PackingPreparationEntity.xml
+          ls -lh output
+          file output/* || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.zipname }}
-          path: ${{ github.event.inputs.zipname }}.zip
+          path: output/
