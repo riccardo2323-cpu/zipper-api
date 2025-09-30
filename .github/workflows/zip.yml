@@ -4,25 +4,25 @@ on:
   workflow_dispatch:
     inputs:
       content1:
-        description: 'Contenuto file uno'
+        description: 'Contenuto del file uno'
         required: true
       name1:
-        description: 'Nome file uno (es: Manifest.xml)'
+        description: 'Nome del file uno con estensione (es: Manifest.xml)'
         required: true
       content2:
-        description: 'Contenuto file due'
+        description: 'Contenuto del file due'
         required: true
       name2:
-        description: 'Nome file due (es: PackageHeader.xml)'
+        description: 'Nome del file due con estensione (es: PackageHeader.xml)'
         required: true
       content3:
-        description: 'Contenuto file tre'
+        description: 'Contenuto del file tre'
         required: true
       name3:
-        description: 'Nome file tre (es: Al1PackingPreparationEntity.xml)'
+        description: 'Nome del file tre con estensione (es: Al1PackingPreparationEntity.xml)'
         required: true
       zipname:
-        description: 'Nome dello zip (senza estensione)'
+        description: 'Nome del file zip (senza estensione)'
         required: true
 
 jobs:
@@ -31,19 +31,19 @@ jobs:
     steps:
       - name: Create file1
         run: |
-          cat <<EOF > "${{ github.event.inputs.name1 }}"
+          cat <<'EOF' > "${{ github.event.inputs.name1 }}"
           ${{ github.event.inputs.content1 }}
           EOF
 
       - name: Create file2
         run: |
-          cat <<EOF > "${{ github.event.inputs.name2 }}"
+          cat <<'EOF' > "${{ github.event.inputs.name2 }}"
           ${{ github.event.inputs.content2 }}
           EOF
 
       - name: Create file3
         run: |
-          cat <<EOF > "${{ github.event.inputs.name3 }}"
+          cat <<'EOF' > "${{ github.event.inputs.name3 }}"
           ${{ github.event.inputs.content3 }}
           EOF
 
@@ -53,9 +53,8 @@ jobs:
                   "${{ github.event.inputs.name2 }}" \
                   "${{ github.event.inputs.name3 }}"
 
-      - name: Upload release asset
-        uses: softprops/action-gh-release@v1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: ${{ github.event.inputs.zipname }}.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ github.event.inputs.zipname }}
+          path: ${{ github.event.inputs.zipname }}.zip
