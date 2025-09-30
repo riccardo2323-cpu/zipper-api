@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       content1:
-        description: "Contenuto del primo file"
+        description: "Contenuto del primo file (base64)"
         required: true
       content2:
-        description: "Contenuto del secondo file"
+        description: "Contenuto del secondo file (base64)"
         required: true
       content3:
-        description: "Contenuto del terzo file"
+        description: "Contenuto del terzo file (chiaro XML)"
         required: true
       zipname:
         description: "Nome dello zip finale (senza estensione)"
@@ -51,11 +51,11 @@ jobs:
 
       - name: Create Manifest.xml
         run: |
-          echo "${{ github.event.inputs.content1 }}" > output/Manifest.xml
+          echo "${{ github.event.inputs.content1 }}" | base64 -d > output/Manifest.xml
 
       - name: Create PackageHeader.xml
         run: |
-          echo "${{ github.event.inputs.content2 }}" > output/PackageHeader.xml
+          echo "${{ github.event.inputs.content2 }}" | base64 -d > output/PackageHeader.xml
 
       - name: Create Al1PackingPreparationEntity.xml
         run: |
